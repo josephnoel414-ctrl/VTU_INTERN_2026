@@ -1,0 +1,3 @@
+this is a sample text file in the folder.
+
+we are trying to commit the entire folder using git bash commands
