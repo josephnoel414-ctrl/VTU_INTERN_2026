@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spring Boot Demo</title>
+</head>
+<body>
+
+<h2 style = "color:red">Spring Boot Hello Demo</h2>
+
+<button onclick="callHello()">Say Hello</button>
+<button onclick="callWelcome()">Say Welcome</button>
+
+<p id="result"></p>
+
+<h3>Available Plots</h3>
+
+<ul id="plotsList"></ul>
+
+<button onclick="loadPlots()">Load Plots</button>
+<br><br>
+
+<button onclick="callHello()">Say Hello</button>
+<button onclick="callWelcome()">Say Welcome</button>
+<button onclick="callBye()">Say Bye</button>
+
+<p id="result"></p>
+
+
+<script>
+    function callHello() {
+        fetch('/hello')
+            .then(res => res.text())
+            .then(data => document.getElementById('result').innerText = data);
+    }
+
+    function callWelcome() {
+        fetch('/welcome')
+            .then(res => res.text())
+            .then(data => document.getElementById('result').innerText = data);
+    }
+    
+    // ✅ Load plots from backend
+    function loadPlots(){
+        fetch('/plots')
+        .then(res => res.json())
+        .then(data => {
+
+            let html = "";
+
+            data.forEach(p => {
+                html += `
+                    <li>
+                        Plot: ${p.plot_no},
+                        Facing: ${p.facing}
+                    </li>
+                `;
+            });
+
+            document.getElementById("plotsList").innerHTML = html;
+        });
+    }
+    
+</script>
+
+</body>
+</html>
+=======================================
+controller
+=======================================
+
+ package com.example.demo;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import ch.qos.logback.core.model.Model;
+
+@RestController
+public class HelloController {
+	
+	   @Autowired
+	   private JdbcTemplate jdbcTemplate;
+
+	 @GetMapping("/hello")
+	    public String hello() {
+	        return "Hello World";
+	    }
+
+	    // 👉 New route
+	    @GetMapping("/welcome")
+	    public String welcome() {
+	        return "Welcome to Spring Boot";
+	    }
+	    
+	    @GetMapping("/user")
+	    public Map<String, String> getUser() {
+	        Map<String, String> user = new HashMap<>();
+	        user.put("name", "Kiran");
+	        user.put("role", "Admin");
+	        return user;
+	    }
+	    
+	    // ✅ UPDATED: returns JSON instead of String
+	    @GetMapping("/plots")
+	    public List<Map<String, Object>> getPlots() {
+
+	        String sql = "SELECT plot_no, facing FROM plots";
+	        return jdbcTemplate.queryForList(sql);
+	    }
+	    
+	    @PostMapping("/saveplots")
+	    public String savePlot(
+	            @RequestParam String plotNo,
+	            @RequestParam String facing) {
+
+	        String sql = "INSERT INTO plots (plot_no, facing) VALUES (?, ?)";
+	        jdbcTemplate.update(sql, plotNo, facing);
+
+	        return "redirect:/plots.html"; // reload form
+	    }
+}
+        String sql = "SELECT plot_no, facing FROM plots";
+	        return jdbcTemplate.queryForList(sql);
+	    }
+	}
+========================================
+plots.html
+======================================
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Plot</title>
+</head>
+<body>
+
+<h2>Add Plot</h2>
+
+<form action="/saveplots" method="post">
+    <label>Plot No:</label>
+    <input type="text" name="plotNo" required />
+    <br><br>
+
+    <label>Facing:</label>
+    <input type="text" name="facing" required />
+    <br><br>
+
+    <button type="submit">Save Plot</button>
+</form>
+
+</body>
+</html>
+

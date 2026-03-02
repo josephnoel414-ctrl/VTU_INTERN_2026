@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Storage Demo</title>
+</head>
+<body>
+
+  <h2>Web Storage Demo</h2>
+
+  <button onclick="saveLocal()">Save to Local Storage</button>
+  <button onclick="saveSession()">Save to Session Storage</button>
+  <button onclick="readData()">Read Stored Values</button>
+  <button onclick="clearAll()">Clear Storage</button>
+
+  <p id="output"></p>
+
+  <script>
+    function saveLocal() {
+      localStorage.setItem("username", "Rahul");
+      alert("Saved in Local Storage");
+    }
+
+    function saveSession() {
+      sessionStorage.setItem("role", "Student");
+      alert("Saved in Session Storage");
+    }
+
+    function readData() {
+      let user = localStorage.getItem("username");
+      let role = sessionStorage.getItem("role");
+
+      document.getElementById("output").innerText =
+        "LocalStorage username: " + user +
+        " | SessionStorage role: " + role;
+    }
+
+    function clearAll() {
+      localStorage.clear();
+      sessionStorage.clear();
+      alert("Both storages cleared");
+    }
+  </script>
+
+</body>
+</html>
